@@ -71,6 +71,9 @@ impl Ellipse {
     }
 }
 impl Ellipse {
+    fn generate_on_curve_coordinate(x_coord: f64) -> CurvePoint {
+        todo!()
+    }
     fn draw_foci(
         &self,
         chart: &mut ChartContext<
@@ -90,6 +93,11 @@ impl Ellipse {
 #[derive(Clone, Copy)]
 struct Focus {
     x: f64,
+}
+#[derive(Clone, Copy)]
+struct CurvePoint {
+    x: f64,
+    y: f64,
 }
 fn main() {
     let root_drawing_area = BitMapBackend::new("images/0.1.png", (900, 900)).into_drawing_area();
