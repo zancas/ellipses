@@ -47,12 +47,16 @@ fn generate_random_ellipse_parameters(lower_bound: f64, upper_bound: f64) -> Vec
     } else {
         thread_rng().gen_range(lower_bound..first - minimum_interfocus)
     };
-    vec![Focus { x: first }, Focus { x: second }]
+    if first < second {
+        vec![Focus { x: first }, Focus { x: second }]
+    } else {
+        vec![Focus { x: second }, Focus { x: first }]
+    }
 }
 
 struct Ellipse {
-    focus_a: Focus,
-    focus_b: Focus,
+    left_focus: Focus,
+    right_focus: Focus,
     bypotenuse: f64,
 }
 impl Ellipse {
@@ -65,8 +69,8 @@ impl Ellipse {
     ) {
         chart
             .draw_series(vec![
-                Circle::new((self.focus_a.x, 0f64), 5, &RED),
-                Circle::new((self.focus_b.x, 0f64), 5, &RED),
+                Circle::new((self.left_focus.x, 0f64), 5, &RED),
+                Circle::new((self.right_focus.x, 0f64), 5, &RED),
             ])
             .unwrap();
     }
@@ -102,8 +106,8 @@ fn main() {
         .unwrap();
     let foci = generate_random_ellipse_parameters(-2.04, 2.04);
     let ellipse = Ellipse {
-        focus_a: foci[0],
-        focus_b: foci[1],
+        left_focus: foci[0],
+        right_focus: foci[1],
         bypotenuse: 0f64,
     };
     ellipse.draw_foci(&mut chart);
