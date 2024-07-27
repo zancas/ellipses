@@ -53,6 +53,22 @@ struct Ellipse {
     focus_b: Focus,
     bypotenuse: f64,
 }
+impl Ellipse {
+    fn draw_foci(
+        &self,
+        chart: &mut ChartContext<
+            BitMapBackend<RGBPixel>,
+            Cartesian2d<RangedCoordf64, RangedCoordf64>,
+        >,
+    ) {
+        chart
+            .draw_series(vec![
+                Circle::new((self.focus_a.x, 0f64), 5, &RED),
+                Circle::new((self.focus_b.x, 0f64), 5, &RED),
+            ])
+            .unwrap();
+    }
+}
 
 #[derive(Clone, Copy)]
 struct Focus {
@@ -83,7 +99,10 @@ fn main() {
         ))
         .unwrap();
     let foci = place_foci(-2.04, 2.04);
-    chart
-        .draw_series(foci.iter().map(|&f| Circle::new((f.x, 0f64), 5, &RED)))
-        .unwrap();
+    let ellipse = Ellipse {
+        focus_a: foci[0],
+        focus_b: foci[1],
+        bypotenuse: 0f64,
+    };
+    ellipse.draw_foci(&mut chart);
 }
