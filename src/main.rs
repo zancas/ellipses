@@ -36,16 +36,18 @@ fn half_ellipse(semi_major_axis: f64) -> f64 {
     )
 }
 
-fn place_foci(lower_bound: f64, upper_bound: f64) -> Vec<Focus> {
+fn generate_random_ellipse_parameters(lower_bound: f64, upper_bound: f64) -> Vec<Focus> {
+    use rand::thread_rng;
     use rand::Rng;
-    vec![
-        Focus {
-            x: rand::thread_rng().gen_range(lower_bound..upper_bound),
-        },
-        Focus {
-            x: rand::thread_rng().gen_range(lower_bound..upper_bound),
-        },
-    ]
+    let range = upper_bound - lower_bound;
+    let minimum_interfocus = range / 10.0;
+    let first = thread_rng().gen_range(lower_bound..upper_bound);
+    let second = if thread_rng().gen_range(0..1) as f64 > 0.5 {
+        thread_rng().gen_range(first + minimum_interfocus..upper_bound)
+    } else {
+        thread_rng().gen_range(lower_bound..first - minimum_interfocus)
+    };
+    vec![Focus { x: first }, Focus { x: second }]
 }
 
 struct Ellipse {
@@ -98,7 +100,7 @@ fn main() {
             &BLACK,
         ))
         .unwrap();
-    let foci = place_foci(-2.04, 2.04);
+    let foci = generate_random_ellipse_parameters(-2.04, 2.04);
     let ellipse = Ellipse {
         focus_a: foci[0],
         focus_b: foci[1],
