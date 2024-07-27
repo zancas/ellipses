@@ -2,24 +2,23 @@ use plotters::{backend::RGBPixel, coord::types::RangedCoordf64, prelude::*};
 
 fn draw_circle(
     chart: &mut ChartContext<BitMapBackend<RGBPixel>, Cartesian2d<RangedCoordf64, RangedCoordf64>>,
-    radius: i32,
+    x_coordinates: &[f64],
+    radius: f64,
     _x_center: f64,
 ) {
-    dbg!(radius);
-    let scaled_radius = radius as f64 / 100.0;
     chart
         .draw_series(LineSeries::new(
-            (-radius..radius)
-                .map(|x| x as f64 / 100.0)
-                .map(|x| (x, circle_pos_y_coord(scaled_radius, x))),
+            x_coordinates
+                .iter()
+                .map(|x| (*x, circle_pos_y_coord(radius, *x))),
             &RED,
         ))
         .unwrap();
     chart
         .draw_series(LineSeries::new(
-            (-radius..radius)
-                .map(|x| x as f64 / 100.0)
-                .map(|x| (x, -1f64 * circle_pos_y_coord(scaled_radius, x))),
+            x_coordinates
+                .iter()
+                .map(|x| (*x, -1f64 * circle_pos_y_coord(radius, *x))),
             &BLUE,
         ))
         .unwrap();
@@ -28,7 +27,6 @@ fn circle_pos_y_coord(radius: f64, x_coord: f64) -> f64 {
     // r_sq = x_sq + y_sq -> y_sq = r_sq - x_sq ->
     // y = (r_sq - x_sq)^.5
     let y = (radius.powf(2f64) - x_coord.powf(2f64)).sqrt();
-    dbg!(y);
     if y > 0f64 {
         y
     } else {
@@ -58,9 +56,10 @@ fn main() {
         .build_cartesian_2d(-3.14..3.14, -3.14..3.14)
         .unwrap();
 
+    let x_coordinates: Vec<f64> = (-314..314).map(|x| x as f64 / 100.0).collect();
     // The radius will be divided by 100
     // after each size 1 step.
-    draw_circle(&mut chart, 314, 0f64);
+    draw_circle(&mut chart, &x_coordinates, 3.14, 0f64);
     chart
         .draw_series(LineSeries::new(
             (-290..290).map(|x| x as f64 / 100.0).map(|x| (x, 0f64)),
