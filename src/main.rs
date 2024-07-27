@@ -36,28 +36,39 @@ fn half_ellipse(semi_major_axis: f64) -> f64 {
     )
 }
 
-fn generate_random_ellipse_parameters(lower_bound: f64, upper_bound: f64) -> Vec<Focus> {
-    use rand::thread_rng;
-    use rand::Rng;
-    let range = upper_bound - lower_bound;
-    let minimum_interfocus = range / 10.0;
-    let first = thread_rng().gen_range(lower_bound..upper_bound);
-    let second = if thread_rng().gen_range(0..1) as f64 > 0.5 {
-        thread_rng().gen_range(first + minimum_interfocus..upper_bound)
-    } else {
-        thread_rng().gen_range(lower_bound..first - minimum_interfocus)
-    };
-    if first < second {
-        vec![Focus { x: first }, Focus { x: second }]
-    } else {
-        vec![Focus { x: second }, Focus { x: first }]
-    }
-}
-
 struct Ellipse {
     left_focus: Focus,
     right_focus: Focus,
     bypotenuse: f64,
+}
+impl Ellipse {
+    fn generate_random_ellipse(lower_bound: f64, upper_bound: f64) -> Self {
+        use rand::thread_rng;
+        use rand::Rng;
+        let range = upper_bound - lower_bound;
+        let minimum_interfocus = range / 10.0;
+        let first = thread_rng().gen_range(lower_bound..upper_bound);
+        let second = if thread_rng().gen_range(0..1) as f64 > 0.5 {
+            thread_rng().gen_range(first + minimum_interfocus..upper_bound)
+        } else {
+            thread_rng().gen_range(lower_bound..first - minimum_interfocus)
+        };
+        if first < second {
+            let bypotenuse = (second - first) * 5f64 / 4f64;
+            Self {
+                left_focus: Focus { x: first },
+                right_focus: Focus { x: second },
+                bypotenuse,
+            }
+        } else {
+            let bypotenuse = (first - second) * 5f64 / 4f64;
+            Self {
+                left_focus: Focus { x: second },
+                right_focus: Focus { x: first },
+                bypotenuse,
+            }
+        }
+    }
 }
 impl Ellipse {
     fn draw_foci(
@@ -104,11 +115,6 @@ fn main() {
             &BLACK,
         ))
         .unwrap();
-    let foci = generate_random_ellipse_parameters(-2.04, 2.04);
-    let ellipse = Ellipse {
-        left_focus: foci[0],
-        right_focus: foci[1],
-        bypotenuse: 0f64,
-    };
+    let ellipse = Ellipse::generate_random_ellipse(-2.04, 2.04);
     ellipse.draw_foci(&mut chart);
 }
