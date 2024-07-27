@@ -36,12 +36,21 @@ fn half_ellipse(semi_major_axis: f64) -> f64 {
     )
 }
 
-fn place_foci(lower_bound: f64, upper_bound: f64) -> Vec<f64> {
+fn place_foci(lower_bound: f64, upper_bound: f64) -> Vec<Focus> {
     use rand::Rng;
     vec![
-        rand::thread_rng().gen_range(lower_bound..upper_bound),
-        rand::thread_rng().gen_range(lower_bound..upper_bound),
+        Focus {
+            x: rand::thread_rng().gen_range(lower_bound..upper_bound),
+        },
+        Focus {
+            x: rand::thread_rng().gen_range(lower_bound..upper_bound),
+        },
     ]
+}
+
+#[derive(Clone, Copy)]
+struct Focus {
+    x: f64,
 }
 fn main() {
     let root_drawing_area = BitMapBackend::new("images/0.1.png", (900, 900)).into_drawing_area();
@@ -69,6 +78,6 @@ fn main() {
         .unwrap();
     let foci = place_foci(-3.14, 3.14);
     chart
-        .draw_series(foci.iter().map(|&f| Circle::new((f, 0f64), 5, &RED)))
+        .draw_series(foci.iter().map(|&f| Circle::new((f.x, 0f64), 5, &RED)))
         .unwrap();
 }
