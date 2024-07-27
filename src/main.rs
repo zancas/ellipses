@@ -51,10 +51,9 @@ fn place_foci(lower_bound: f64, upper_bound: f64) -> Vec<Focus> {
 struct Ellipse {
     focus_a: Focus,
     focus_b: Focus,
-    semi_major_axis: f64,
-    semi_minor_axis: f64,
     bypotenuse: f64,
 }
+
 #[derive(Clone, Copy)]
 struct Focus {
     x: f64,
@@ -83,7 +82,7 @@ fn main() {
             &BLACK,
         ))
         .unwrap();
-    let foci = place_foci(-2.14, 2.14);
+    let foci = place_foci(-2.04, 2.04);
     chart
         .draw_series(foci.iter().map(|&f| Circle::new((f.x, 0f64), 5, &RED)))
         .unwrap();
