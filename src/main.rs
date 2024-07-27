@@ -13,6 +13,7 @@ fn draw_circle(
         .chain(
             x_coordinates
                 .iter()
+                .rev()
                 .map(|x| (*x, -1f64 * circle_pos_y_coord(radius, *x))),
         );
     chart
