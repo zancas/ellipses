@@ -5,22 +5,18 @@ fn draw_circle(
     x_coordinates: &[f64],
     radius: f64,
     _x_center: f64,
+    line_shape_style: ShapeStyle,
 ) {
-    chart
-        .draw_series(LineSeries::new(
-            x_coordinates
-                .iter()
-                .map(|x| (*x, circle_pos_y_coord(radius, *x))),
-            &RED,
-        ))
-        .unwrap();
-    chart
-        .draw_series(LineSeries::new(
+    let series = x_coordinates
+        .iter()
+        .map(|x| (*x, circle_pos_y_coord(radius, *x)))
+        .chain(
             x_coordinates
                 .iter()
                 .map(|x| (*x, -1f64 * circle_pos_y_coord(radius, *x))),
-            &BLUE,
-        ))
+        );
+    chart
+        .draw_series(LineSeries::new(series, line_shape_style))
         .unwrap();
 }
 fn circle_pos_y_coord(radius: f64, x_coord: f64) -> f64 {
@@ -56,10 +52,15 @@ fn main() {
         .build_cartesian_2d(-3.14..3.14, -3.14..3.14)
         .unwrap();
 
-    let x_coordinates: Vec<f64> = (-314..314).map(|x| x as f64 / 100.0).collect();
+    let x_coordinates: Vec<f64> = (-315..315).map(|x| x as f64 / 100.0).collect();
     // The radius will be divided by 100
     // after each size 1 step.
-    draw_circle(&mut chart, &x_coordinates, 3.14, 0f64);
+    let shape_style = ShapeStyle {
+        color: GREEN.to_rgba(),
+        filled: true,
+        stroke_width: 5,
+    };
+    draw_circle(&mut chart, &x_coordinates, 3.14, 0f64, shape_style);
     chart
         .draw_series(LineSeries::new(
             (-290..290).map(|x| x as f64 / 100.0).map(|x| (x, 0f64)),
