@@ -29,12 +29,6 @@ fn circle_pos_y_coord(radius: f64, x_coord: f64) -> f64 {
         0f64
     }
 }
-fn half_ellipse(semi_major_axis: f64) -> f64 {
-    unimplemented!(
-        "Make two circles, one centered at each focus.  The circles intersect once
-        above the x-axis, on the curve."
-    )
-}
 // Note that the major axis of this ellipse lies along the x-axis.
 struct Ellipse {
     left_focus: Focus,
@@ -75,15 +69,19 @@ impl Ellipse {
     }
 }
 impl Ellipse {
-    fn base(focus: Focus, x_coord: f64) -> f64 {
+    fn _base(focus: Focus, x_coord: f64) -> f64 {
         (focus.x - x_coord).abs()
     }
-    fn generate_on_curve_coordinate(x_coord: f64) -> CurvePoint {
+    /*
+    fn _generate_on_curve_coordinate(_x_coord: f64) -> CurvePoint {
+        todo!()
+    }*/
+    fn _calculate_curve_y(&self, _x_coord: f64) -> f64 {
         todo!()
     }
-    fn calculate_curve_y(&self) -> f64 {
-        todo!()
-    }
+}
+// Draw operations
+impl Ellipse {
     fn draw_foci(
         &self,
         chart: &mut ChartContext<
@@ -99,16 +97,16 @@ impl Ellipse {
             .unwrap();
     }
 }
-
 #[derive(Clone, Copy)]
 struct Focus {
     x: f64,
 }
+/*
 #[derive(Clone, Copy)]
 struct CurvePoint {
     x: f64,
     y: f64,
-}
+}*/
 fn main() {
     let root_drawing_area = BitMapBackend::new("images/0.1.png", (900, 900)).into_drawing_area();
 
@@ -127,12 +125,10 @@ fn main() {
         stroke_width: 5,
     };
     draw_circle(&mut chart, &x_coordinates, 3.14, shape_style);
-    chart
-        .draw_series(LineSeries::new(
-            (-290..290).map(|x| x as f64 / 100.0).map(|x| (x, 0f64)),
-            &BLACK,
-        ))
-        .unwrap();
     let ellipse = Ellipse::generate_random_ellipse(-2.04, 2.04);
     ellipse.draw_foci(&mut chart);
+    dbg!(ellipse.left_focus.x);
+    dbg!(ellipse.mid_focus_point);
+    dbg!(ellipse.right_focus.x);
+    dbg!(ellipse.bypotenuse);
 }
