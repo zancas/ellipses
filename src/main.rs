@@ -1,12 +1,15 @@
+use plotters::coord::ranged1d::{DefaultFormatting, KeyPointHint, LightPoints, Ranged};
 use plotters::{backend::RGBPixel, coord::types::RangedCoordf64, prelude::*};
+use std::ops::Range;
 
 fn draw_circle(
     chart: &mut ChartContext<BitMapBackend<RGBPixel>, Cartesian2d<RangedCoordf64, RangedCoordf64>>,
-    x_coordinates: &[f64],
+    x_coordinates: RangedCoordf64,
     radius: f64,
     line_shape_style: ShapeStyle,
 ) {
     let series = x_coordinates
+        .key_points(LightPoints::new(10, 10))
         .iter()
         .map(|x| (*x, circle_pos_y_coord(radius, *x)))
         .chain(
@@ -117,6 +120,7 @@ fn main() {
         .build_cartesian_2d(-3.14..3.14, -3.14..3.14)
         .unwrap();
 
+    let rc_coordinates = RangedCoordf64::from(-3.15f64..3.15f64);
     let x_coordinates: Vec<f64> = (-315..315).map(|x| x as f64 / 100.0).collect();
     // The radius will be divided by 100
     // after each size 1 step.
@@ -125,7 +129,7 @@ fn main() {
         filled: true,
         stroke_width: 5,
     };
-    draw_circle(&mut chart, &x_coordinates, 3.14, shape_style);
+    draw_circle(&mut chart, &rc_coordinates, 3.14, shape_style);
     ellipse.draw_foci(&mut chart);
     dbg!(ellipse.left_focus.x);
     dbg!(ellipse.mid_focus_point);
