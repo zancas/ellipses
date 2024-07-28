@@ -35,10 +35,11 @@ fn half_ellipse(semi_major_axis: f64) -> f64 {
         above the x-axis, on the curve."
     )
 }
-
+// Note that the major axis of this ellipse lies along the x-axis.
 struct Ellipse {
     left_focus: Focus,
     right_focus: Focus,
+    mid_focus_point: f64,
     bypotenuse: f64,
 }
 impl Ellipse {
@@ -53,11 +54,13 @@ impl Ellipse {
         } else {
             thread_rng().gen_range(lower_bound..first - minimum_interfocus)
         };
+        let mid_focus_point = (first + second) / 2.0;
         if first < second {
             let bypotenuse = (second - first) * 5f64 / 4f64;
             Self {
                 left_focus: Focus { x: first },
                 right_focus: Focus { x: second },
+                mid_focus_point,
                 bypotenuse,
             }
         } else {
@@ -65,13 +68,20 @@ impl Ellipse {
             Self {
                 left_focus: Focus { x: second },
                 right_focus: Focus { x: first },
+                mid_focus_point,
                 bypotenuse,
             }
         }
     }
 }
 impl Ellipse {
+    fn base(focus: Focus, x_coord: f64) -> f64 {
+        (focus.x - x_coord).abs()
+    }
     fn generate_on_curve_coordinate(x_coord: f64) -> CurvePoint {
+        todo!()
+    }
+    fn calculate_curve_y(&self) -> f64 {
         todo!()
     }
     fn draw_foci(
