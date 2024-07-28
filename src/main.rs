@@ -112,6 +112,7 @@ fn main() {
 
     root_drawing_area.fill(&WHITE).unwrap();
 
+    let ellipse = Ellipse::generate_random_ellipse(-2.04, 2.04);
     let mut chart = ChartBuilder::on(&root_drawing_area)
         .build_cartesian_2d(-3.14..3.14, -3.14..3.14)
         .unwrap();
@@ -125,7 +126,6 @@ fn main() {
         stroke_width: 5,
     };
     draw_circle(&mut chart, &x_coordinates, 3.14, shape_style);
-    let ellipse = Ellipse::generate_random_ellipse(-2.04, 2.04);
     ellipse.draw_foci(&mut chart);
     dbg!(ellipse.left_focus.x);
     dbg!(ellipse.mid_focus_point);
