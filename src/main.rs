@@ -87,11 +87,41 @@ impl Ellipse {
         let left_base = self.base(self.left_focus, x_coord);
         let right_base = self.base(self.right_focus, x_coord);
         let h_l = self.first_hypotenuse(left_base, right_base);
-        Ellipse::y_from_h_and_x(h_l, left_base)
+        let y = Ellipse::y_from_h_and_x(h_l, left_base);
+        if y > 0f64 {
+            y
+        } else {
+            0f64
+        }
     }
 }
 // Draw operations
 impl Ellipse {
+    fn draw_curve(
+        &self,
+        chart: &mut ChartContext<
+            BitMapBackend<RGBPixel>,
+            Cartesian2d<RangedCoordf64, RangedCoordf64>,
+        >,
+    ) {
+        let rc = RangedCoordf64::from(
+            (self.right_focus.x - self.bypotenuse)..(self.left_focus.x + self.bypotenuse),
+        )
+        .key_points(LightPoints::new(1, 100));
+        let series = rc.iter().map(|x| (*x, self.calculate_curve_y(*x))).chain(
+            rc.iter()
+                .rev()
+                .map(|x| (*x, -1f64 * self.calculate_curve_y(*x))),
+        );
+        let shape_style = ShapeStyle {
+            color: full_palette::PURPLE.to_rgba(),
+            filled: true,
+            stroke_width: 1,
+        };
+        chart
+            .draw_series(LineSeries::new(series, shape_style))
+            .unwrap();
+    }
     fn draw_foci(
         &self,
         chart: &mut ChartContext<
@@ -124,7 +154,7 @@ impl Ellipse {
             Cartesian2d<RangedCoordf64, RangedCoordf64>,
         >,
     ) {
-        let rc = RangedCoordf64::from(self.left_focus.x..self.left_focus.x + self.bypotenuse)
+        let rc = RangedCoordf64::from(self.left_focus.x..(self.left_focus.x + self.bypotenuse))
             .key_points(LightPoints::new(1, 100));
         let series = rc.iter().map(|x| (x.clone(), 0f64));
         chart.draw_series(LineSeries::new(series, &BLACK)).unwrap();
@@ -165,4 +195,5 @@ fn main() {
     ellipse.draw_first_flat_bypotenuse(&mut chart);
     dbg!(ellipse.right_focus.x);
     dbg!(ellipse.bypotenuse);
+    ellipse.draw_curve(&mut chart);
 }
