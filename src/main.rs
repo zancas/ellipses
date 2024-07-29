@@ -1,15 +1,13 @@
-use plotters::coord::ranged1d::{DefaultFormatting, KeyPointHint, LightPoints, Ranged};
+use plotters::coord::ranged1d::{LightPoints, Ranged};
 use plotters::{backend::RGBPixel, coord::types::RangedCoordf64, prelude::*};
-use std::ops::Range;
 
 fn draw_circle(
     chart: &mut ChartContext<BitMapBackend<RGBPixel>, Cartesian2d<RangedCoordf64, RangedCoordf64>>,
-    x_coordinates: RangedCoordf64,
+    x_coordinates: Vec<f64>,
     radius: f64,
     line_shape_style: ShapeStyle,
 ) {
     let series = x_coordinates
-        .key_points(LightPoints::new(10, 10))
         .iter()
         .map(|x| (*x, circle_pos_y_coord(radius, *x)))
         .chain(
@@ -52,8 +50,8 @@ impl Ellipse {
             thread_rng().gen_range(lower_bound..first - minimum_interfocus)
         };
         let mid_focus_point = (first + second) / 2.0;
+        let bypotenuse = (second - first).abs() * 5f64 / 4f64;
         if first < second {
-            let bypotenuse = (second - first) * 5f64 / 4f64;
             Self {
                 left_focus: Focus { x: first },
                 right_focus: Focus { x: second },
@@ -61,7 +59,6 @@ impl Ellipse {
                 bypotenuse,
             }
         } else {
-            let bypotenuse = (first - second) * 5f64 / 4f64;
             Self {
                 left_focus: Focus { x: second },
                 right_focus: Focus { x: first },
@@ -72,8 +69,29 @@ impl Ellipse {
     }
 }
 impl Ellipse {
-    fn _base(focus: Focus, x_coord: f64) -> f64 {
+    // The base of a right triangle with hypotenuse
+    // contributing to the bypotenuse
+    fn base(focus: Focus, x_coord: f64) -> f64 {
         (focus.x - x_coord).abs()
+    }
+    // left bypotenuse contributing triangle
+    fn left_base(&self, x_coord: f64) -> f64 {
+        Ellipse::base(self.left_focus, x_coord)
+    }
+    // right bypotenuse contributing triangle
+    fn right_base(&self, x_coord: f64) -> f64 {
+        Ellipse::base(self.left_focus, x_coord)
+    }
+    // first arg hypotenuse
+    fn first_hypotenuse(&self, first: f64, second: f64) -> f64 {
+        let numerator = self.bypotenuse.powf(2.0) + first.powf(2.0) - second.powf(2.0);
+        let denominator = 2.0 * self.bypotenuse;
+        numerator / denominator
+    }
+    fn left_hypotenuse(&self, x_coord: f64) -> f64 {
+        let left_base = Ellipse::base(self.left_focus, x_coord);
+        let right_base = Ellipse::base(self.right_focus, x_coord);
+        self.first_hypotenuse(left_base, right_base)
     }
     /*
     fn _generate_on_curve_coordinate(_x_coord: f64) -> CurvePoint {
@@ -99,6 +117,29 @@ impl Ellipse {
             ])
             .unwrap();
     }
+    fn draw_mid_focus_point(
+        &self,
+        chart: &mut ChartContext<
+            BitMapBackend<RGBPixel>,
+            Cartesian2d<RangedCoordf64, RangedCoordf64>,
+        >,
+    ) {
+        chart
+            .draw_series(vec![Circle::new((self.mid_focus_point, 0f64), 5, &BLUE)])
+            .unwrap();
+    }
+    fn draw_first_flat_bypotenuse(
+        &self,
+        chart: &mut ChartContext<
+            BitMapBackend<RGBPixel>,
+            Cartesian2d<RangedCoordf64, RangedCoordf64>,
+        >,
+    ) {
+        let rc = RangedCoordf64::from(self.left_focus.x..self.left_focus.x + self.bypotenuse)
+            .key_points(LightPoints::new(1, 100));
+        let series = rc.iter().map(|x| (x.clone(), 0f64));
+        chart.draw_series(LineSeries::new(series, &BLACK)).unwrap();
+    }
 }
 #[derive(Clone, Copy)]
 struct Focus {
@@ -120,19 +161,19 @@ fn main() {
         .build_cartesian_2d(-3.14..3.14, -3.14..3.14)
         .unwrap();
 
-    let rc_coordinates = RangedCoordf64::from(-3.15f64..3.15f64);
-    let x_coordinates: Vec<f64> = (-315..315).map(|x| x as f64 / 100.0).collect();
-    // The radius will be divided by 100
-    // after each size 1 step.
+    let rc_coordinates =
+        RangedCoordf64::from(-3.14f64..3.14f64).key_points(LightPoints::new(1, 900));
     let shape_style = ShapeStyle {
-        color: GREEN.to_rgba(),
+        color: RED.to_rgba(),
         filled: true,
         stroke_width: 5,
     };
-    draw_circle(&mut chart, &rc_coordinates, 3.14, shape_style);
+    draw_circle(&mut chart, rc_coordinates, 3.14, shape_style);
     ellipse.draw_foci(&mut chart);
     dbg!(ellipse.left_focus.x);
     dbg!(ellipse.mid_focus_point);
+    ellipse.draw_mid_focus_point(&mut chart);
+    ellipse.draw_first_flat_bypotenuse(&mut chart);
     dbg!(ellipse.right_focus.x);
     dbg!(ellipse.bypotenuse);
 }
