@@ -71,34 +71,23 @@ impl Ellipse {
 impl Ellipse {
     // The base of a right triangle with hypotenuse
     // contributing to the bypotenuse
-    fn base(focus: Focus, x_coord: f64) -> f64 {
+    fn base(&self, focus: Focus, x_coord: f64) -> f64 {
         (focus.x - x_coord).abs()
     }
-    // left bypotenuse contributing triangle
-    fn left_base(&self, x_coord: f64) -> f64 {
-        Ellipse::base(self.left_focus, x_coord)
-    }
-    // right bypotenuse contributing triangle
-    fn right_base(&self, x_coord: f64) -> f64 {
-        Ellipse::base(self.left_focus, x_coord)
-    }
     // first arg hypotenuse
-    fn first_hypotenuse(&self, first: f64, second: f64) -> f64 {
-        let numerator = self.bypotenuse.powf(2.0) + first.powf(2.0) - second.powf(2.0);
+    fn first_hypotenuse(&self, first_base: f64, second_base: f64) -> f64 {
+        let numerator = self.bypotenuse.powf(2.0) + first_base.powf(2.0) - second_base.powf(2.0);
         let denominator = 2.0 * self.bypotenuse;
         numerator / denominator
     }
-    fn left_hypotenuse(&self, x_coord: f64) -> f64 {
-        let left_base = Ellipse::base(self.left_focus, x_coord);
-        let right_base = Ellipse::base(self.right_focus, x_coord);
-        self.first_hypotenuse(left_base, right_base)
+    fn y_from_h_and_x(h: f64, x: f64) -> f64 {
+        (h.powf(2.0) - x.powf(2.0)).sqrt()
     }
-    /*
-    fn _generate_on_curve_coordinate(_x_coord: f64) -> CurvePoint {
-        todo!()
-    }*/
-    fn _calculate_curve_y(&self, _x_coord: f64) -> f64 {
-        todo!()
+    fn calculate_curve_y(&self, x_coord: f64) -> f64 {
+        let left_base = self.base(self.left_focus, x_coord);
+        let right_base = self.base(self.right_focus, x_coord);
+        let h_l = self.first_hypotenuse(left_base, right_base);
+        Ellipse::y_from_h_and_x(h_l, left_base)
     }
 }
 // Draw operations
